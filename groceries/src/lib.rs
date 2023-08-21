@@ -1,14 +1,15 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+/*
+Description: 
+  Instructions
+Create a function named insert, that inserts a new element at the end of the Vec.
+
+Create another function named at_index that returns the value found at the index passed as an argument.
+ */
+
+pub fn insert(vec: &mut Vec<String>, val: String) {
+vec.push(val);
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub fn at_index(vec: &Vec<String>, index: usize) -> String {
+vec[index].clone()
 }
