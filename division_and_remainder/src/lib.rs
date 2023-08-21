@@ -1,14 +1,12 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+// todo:division_and_remainder
+/*Instructions
+Create a function named divide that receives two i32 and returns a tuple. The first element is the result of the integer division between the two numbers, and the second is the remainder of the division.
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub fn divide(x: i32, y: i32) -> (i32, i32) {
+} */
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub fn divide(x: i32, y: i32) -> (i32, i32) {
+    let division = x / y;
+    let remainder = x % y;
+    (division, remainder)
 }
