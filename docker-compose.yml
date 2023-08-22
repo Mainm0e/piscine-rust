@@ -1,0 +1,10 @@
+version: '3'
+services:
+  test-environment:
+    image: ghcr.io/01-edu/test-rust:latest
+    working_dir: /
+    environment:
+      - EXERCISE=${EXERCISE}
+    container_name: test-rust
+    volumes:
+      - ./:/student/
