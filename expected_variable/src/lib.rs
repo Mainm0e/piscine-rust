@@ -9,6 +9,13 @@ If the result of edit_distance has more than 50% alikeness to the expected strin
  */
 
 
+ // no touchy
+
+ 
+extern crate case;
+
+use case::CaseExt;
+
  pub fn edit_distance(source: &str, target: &str) -> usize {
 	let src = source.chars().collect::<Vec<_>>();
 	let tar = target.chars().collect::<Vec<_>>();
@@ -47,46 +54,101 @@ If the result of edit_distance has more than 50% alikeness to the expected strin
 	matrix[target_len - 1][source_len - 1]
 }
 
-use std::cmp::Ordering;
 
-pub fn expected_variable(compared: &str, expected: &str) -> Option<String> {
-    // Check if the compared string is in camel case or snake case
-    if is_snake_case(compared) || is_camel_case(compared) {
-        // Calculate the edit distance
-        let distance = edit_distance(compared, expected);
+pub fn expected_variable(source: &str, expected: &str) -> Option<String>  {
+	 // check if source is camel case or snake case
+	 // if not return None
+	 // if yes, compare source to expected using edit_distance
+	 // if edit_distance is > 50% of expected, return edit_distance + '%'
+	 // else return None
 
-        // Calculate the similarity percentage
-        let similarity = 1.0 - (distance as f64 / expected.len() as f64);
 
-        // Check if similarity is greater than 50%
-        if similarity > 0.5 {
-            // Format the result and return
-            let formatted_result = format!("{:.0}%", similarity * 100.0);
-            Some(formatted_result)
-        } else {
-            None
-        }
+	// 1. check if source is camel case or snake case
+	let is_camel_case =check_case(source);
+	println!("is_camel_case: {}", is_camel_case);
+	if !is_camel_case{
+		return None
+	}
+
+	// 2. compare source to expecten using edit_distance
+	// make sure to convert source to snake case
+	if source.len() == expected.len(){
+		return Some("100%".to_string()) ;
+	}
+	let source_snake_case = source.to_snake();
+	println!("source_snake_case: {}, expected: {}", source,expected );
+	let edit_distance = edit_distance(&source_snake_case, expected);
+	println!("edit_distance: {}", edit_distance);
+	if edit_distance == 0 {
+		return Some("100%".to_string())
+	} 
+	// find percentage of source to expected
+
+	let percentage = (source.len() as f32 / expected.len() as f32) * 100.0;
+	println!("percentage: {} , source: {}, expect: {}", percentage, source.len(), expected.len());
+	if percentage > 50.0 {
+        Some(format!("{:.0}%", percentage))
     } else {
         None
     }
+	// if edit_distance is > 50% of expected, return edit_distance + '%'
 }
 
-fn is_snake_case(s: &str) -> bool {
-    // Implement snake case check logic here
-    // For example, check if the string only contains lowercase letters and underscores
-    s.chars().all(|c| c.is_ascii_lowercase() || c == '_')
-}
-fn is_camel_case(s: &str) -> bool {
-    let mut has_upper = false;
-    let mut has_lower = false;
+pub fn check_case(source: &str) -> bool {
+    let contains_uppercase = source.chars().any(|c| c.is_ascii_uppercase());
+    let contains_lowercase = source.chars().any(|c| c.is_ascii_lowercase());
+    let contains_underscore = source.contains('_');
+    let contains_whitespace = source.contains(char::is_whitespace);
+    let contains_dash = source.contains('-');
 
-    for c in s.chars() {
-        if c.is_ascii_uppercase() {
-            has_upper = true;
-        } else if c.is_ascii_lowercase() {
-            has_lower = true;
-        }
+    if contains_whitespace || contains_dash {
+        return false;
     }
 
-    has_upper && has_lower
+    if (contains_uppercase && contains_lowercase) || (contains_underscore && !contains_uppercase) {
+        return true;
+    }
+
+    false
 }
+
+/* 
+pub fn check_case(source: &str) -> bool {
+    let contains_uppercase = source.chars().any(|c| c.is_ascii_uppercase());
+    let contains_lowercase = source.chars().any(|c| c.is_ascii_lowercase());
+    let contains_underscore = source.contains('_');
+
+    (contains_uppercase && contains_lowercase) || (contains_underscore && !contains_uppercase)
+}
+
+
+trait ToSnakeCase {
+    fn to_snake(&self) -> String;
+}
+
+impl ToSnakeCase for str {
+    fn to_snake(&self) -> String {
+        let mut snake = String::new();
+        for (i, c) in self.chars().enumerate() {
+            if i > 0 && c.is_ascii_uppercase() {
+                snake.push('_');
+            }
+            snake.push_str(&c.to_lowercase().to_string());
+        }
+        snake
+    }
+}
+ */
+#[cfg(test)]
+
+mod test {
+	use super::*;
+
+	#[test]
+	fn case1() {
+	let case1 = expected_variable("do-not-use-dashes", "do-not-use-dashes");
+	assert_eq!(case1, None);
+	}	
+}
+
+
