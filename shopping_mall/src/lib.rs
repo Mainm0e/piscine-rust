@@ -10,19 +10,31 @@ cut_or_raise: receives a Mall. For each employee, the salary will be raised by 1
  */
 
  pub mod mall; // Assuming this is how you import the mall module
-    
-
  pub use mall::*;
+
  pub use crate::guard::Guard;
  pub use crate::floor::Floor;
+ pub use crate::floor::store;
 
-pub fn biggest_store(mall: &Mall) -> Option<&Floor> {
-    mall.floors.iter().max_by(|a, b| a.size_limit.cmp(&b.size_limit))
+
+/* pub fn biggest_store(mall: Mall) -> Option<store::Store> {
+    mall.floors
+        .into_iter()
+        .flat_map(|floor| floor.stores)
+        .max_by(|a, b| a.square_meters.cmp(&b.square_meters))
+} */
+
+pub fn biggest_store(mall: Mall) -> store::Store{
+    mall.floors
+        .into_iter()
+        .flat_map(|floor| floor.stores)
+        .max_by(|a, b| a.square_meters.cmp(&b.square_meters))
+        .expect("No stores found in the mall.")
 }
 
-pub fn highest_paid_employee(mall: &Mall) -> Vec<&mall::floor::store::employee::Employee> {
+pub fn highest_paid_employee(mall: Mall) -> Vec<mall::floor::store::employee::Employee> {
     let mut highest_salary = 0.0;
-    let mut highest_paid_employees: Vec<&mall::floor::store::employee::Employee> = Vec::new();
+    let mut highest_paid_employees: Vec<mall::floor::store::employee::Employee> = Vec::new();
 
     for floor in &mall.floors {
         for store in &floor.stores {
@@ -30,9 +42,9 @@ pub fn highest_paid_employee(mall: &Mall) -> Vec<&mall::floor::store::employee::
                 if employee.salary > highest_salary {
                     highest_salary = employee.salary;
                     highest_paid_employees.clear();
-                    highest_paid_employees.push(employee);
+                    highest_paid_employees.push(employee.clone()); // Clone the employee
                 } else if employee.salary == highest_salary {
-                    highest_paid_employees.push(employee);
+                    highest_paid_employees.push(employee.clone()); // Clone the employee
                 }
             }
         }
@@ -44,8 +56,9 @@ pub fn highest_paid_employee(mall: &Mall) -> Vec<&mall::floor::store::employee::
 
 
 
-pub fn nbr_of_employees(mall: &Mall) -> usize {
-    let total_employees: usize = mall.floors.iter().flat_map(|floor| &floor.stores).map(|store| store.employees.len()).sum();
+
+pub fn nbr_of_employees(mall: Mall) -> usize {
+    let total_employees: usize = mall.floors.into_iter().flat_map(|floor| floor.stores).map(|store| store.employees.len()).sum();
     total_employees + mall.guards.len()
 }
 
