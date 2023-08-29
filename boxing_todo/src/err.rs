@@ -76,7 +76,7 @@ impl Display for ParseErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             ParseErr::Empty => write!(f, "Fail to parses todo"),
-            ParseErr::Malformed(e) => write!(f, "Fail to parses todo {}", e),
+            ParseErr::Malformed(e) => write!(f, "Fail to parses todo" ),
         }
     }
 }
@@ -84,7 +84,7 @@ impl Display for ParseErr {
 #[derive(Debug)]
 pub struct ReadErr {
     // expected public fields
-    child_err: Box<dyn Error>,
+    pub child_err: Box<dyn Error>,
 }
 
 // required by error trait

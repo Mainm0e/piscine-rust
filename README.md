@@ -1,3 +1,0 @@
-﻿# piscine-rust
-
-Kaljaa

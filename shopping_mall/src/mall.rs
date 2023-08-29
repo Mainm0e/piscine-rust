@@ -1,4 +1,5 @@
 #[derive(Debug, Clone, PartialEq)]
+
 pub struct Mall {
     pub name: String,
     pub guards: Vec<guard::Guard>,
@@ -104,7 +105,7 @@ pub mod floor {
             pub square_meters: u64,
             pub employees: Vec<employee::Employee>,
         }
-
+        
         impl Store {
             #[allow(dead_code)]
             pub fn new(name: &str, space: u64, employees: Vec<employee::Employee>) -> Store {

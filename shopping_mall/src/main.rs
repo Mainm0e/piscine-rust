@@ -1,5 +1,5 @@
 
-
+use shopping_mall::*;
 fn main() {
     let secs = vec![
         mall::guard::Guard::new("John Oliver", 34, 7),
@@ -54,15 +54,15 @@ fn main() {
     ];
 
     let ground_stores = vec![
-        store::Store::new("Footzo", 50, footzo_emp),
-        store::Store::new("Swashion", 43, swashion_emp),
+        mall::floor::store::Store::new("Footzo", 50, footzo_emp),
+        mall::floor::store::Store::new("Swashion", 43, swashion_emp),
     ];
     let food_stores = vec![
-        store::Store::new("PizBite", 60, pizbite_emp),
-        store::Store::new("Chillout Grill", 50, grill_emp),
-        store::Store::new("Sumo Food", 30, sumo_emp),
+        mall::floor::store::Store::new("PizBite", 60, pizbite_emp),
+        mall::floor::store::Store::new("Chillout Grill", 50, grill_emp),
+        mall::floor::store::Store::new("Sumo Food", 30, sumo_emp),
     ];
-    let supermarket = vec![store::Store::new("Pretail", 950, supermaket_emp)];
+    let supermarket = vec![mall::floor::store::Store::new("Pretail", 950, supermaket_emp)];
 
     let floors = vec![
         floor::Floor::new("Ground Floor", ground_stores, 300),
@@ -70,16 +70,43 @@ fn main() {
         floor::Floor::new("Supermarket", supermarket, 1000),
     ];
 
-    let mall_la_vie = mall::Mall::new("La Vie Funchal", secs, floors);
+    let mut mall_la_vie = mall::Mall::new("La Vie Funchal", secs, floors);
+    //returns the biggest store
+    println!("Biggest store: {:#?}",biggest_store(&mall_la_vie.clone()));
+
+    //returns the list with the highest paid employees
+    println!("Highest paid employee: {:#?}", highest_paid_employee(&mall_la_vie.clone()));
+
+    //returns the number of employees
+    println!("Number of employees: {:?}", nbr_of_employees(&mall_la_vie.clone()));
+
+    //checks if it is needed to add securities
+    check_for_securities(
+        &mut mall_la_vie,
+        vec![
+            mall::guard::Guard::new("Peter Solomons", 45, 20),
+            mall::guard::Guard::new("William Charles", 32, 10),
+            mall::guard::Guard::new("Leonardo Changretta", 23, 0),
+            mall::guard::Guard::new("Vlad Levi", 38, 8),
+            mall::guard::Guard::new("Faruk Berkai", 40, 15),
+            mall::guard::Guard::new("Chritopher Smith", 35, 9),
+            mall::guard::Guard::new("Jason Mackie", 26, 2),
+            mall::guard::Guard::new("Kenzie Mair", 34, 8),
+            mall::guard::Guard::new("Bentley Larson", 33, 10),
+            mall::guard::Guard::new("Ray Storey", 37, 12),
+        ],
+    );
+
+    //raises or cuts the salary  of every employee
+    cut_or_raise(&mut mall_la_vie);
 
     println!("{:?}", &mall_la_vie);
 }
 
-use shopping_mall::*;
+
 
 mod tests {
     use super::*;
-
     fn create_mall() -> mall::Mall {
         let secs = vec![
             mall::guard::Guard::new("John Oliver", 34, 7),
@@ -161,7 +188,7 @@ mod tests {
     fn biggest_store_tests() {
         let mut shopping_mall = create_mall();
 
-        let mut tested = biggest_store(shopping_mall.clone());
+        let mut tested = biggest_store(&shopping_mall.clone());
 
         assert_eq!("Pretail", tested.name);
         assert_eq!(950, tested.square_meters);
@@ -228,6 +255,7 @@ mod tests {
                 mall::guard::Guard::new("Ray Storey", 37, 12),
             ],
         );
+
         assert_eq!(9, shopping_mall.guards.len());
     }
 

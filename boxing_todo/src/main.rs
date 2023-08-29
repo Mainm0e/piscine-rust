@@ -3,13 +3,13 @@ use boxing_todo::*;
 // Note that you can create some todo list your self to test it, but you can find the JSON files that
 // are being tested [here](https://github.com/01-edu/public/blob/master/subjects/boxing_todo)
 fn main() {
-    let todos = TodoList::get_todo("todo.json");
+/*     let todos = TodoList::get_todo("todo.json");
     match todos {
         Ok(list) => println!("{:?}", list),
         Err(e) => {
             println!("{} {:?}", e.to_string(), e.source());
         }
-    }
+    } */
 
     let todos = TodoList::get_todo("malformed_object.json");
     match todos {
@@ -19,13 +19,13 @@ fn main() {
         }
     }
 
-    let todos = TodoList::get_todo("permission_err.json");
+  /*   let todos = TodoList::get_todo("permission_err.json");
     match todos {
         Ok(list) => println!("{:?}", list),
         Err(e) => {
             println!("{} {:?}", e.to_string(), e.source());
         }
-    }
+    } */
 }
 
 #[cfg(test)]

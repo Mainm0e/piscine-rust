@@ -16,7 +16,7 @@ use middle_day::*;
 fn main() {
     println!("{:?}", middle_day(1022).unwrap());
 } */
-pub use chrono::*;
+pub use chrono::{Datelike, NaiveDate, Weekday};
 pub use chrono::Weekday as wd;
 
 

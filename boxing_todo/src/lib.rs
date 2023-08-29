@@ -61,7 +61,7 @@ impl TodoList {
 } */
 
 mod err;
-pub use err::{ ParseErr, ReadErr };
+use err::{ ParseErr, ReadErr };
 
 pub use json::{parse, stringify};
 pub use std::error::Error;
@@ -81,8 +81,18 @@ pub struct TodoList {
 
 impl TodoList {
     pub fn get_todo(path: &str) -> Result<TodoList, Box<dyn Error>> {
-        let file = std::fs::read_to_string(path)?;
-        let json = parse(&file)?;
+        let file = std::fs::read_to_string(path)
+        .map_err(|e| Box::new(ReadErr { child_err: Box::new(e) }))?;
+    
+    if file.is_empty() {
+        return Err(Box::new(ReadErr { child_err: Box::new(ParseErr::Empty) }));
+    }   
+        println!("1{:?}", file);
+        // if file.is_empty() expected substring: `"Fail to parses todo Some(Malformed(UnexpectedCharacter { ch: ',', line: 1, column: 15 }))"`
+        let json = parse(&file)
+        .map_err(|e| Box::new(ParseErr::Malformed(Box::new(ParseErr::Malformed(Box::new(e))))))?;
+
+        println!("2{:?}", json);
         let mut tasks: Vec<Task> = Vec::new();
         let mut title: String = String::new();
         if json["tasks"].is_empty() {
@@ -91,6 +101,7 @@ impl TodoList {
         for (key, value) in json.entries() {
             if key == "title" {
                 title = value.to_string();
+
             } else if key == "tasks" {
                 for task in value.members() {
                     let id = task["id"].as_u32().unwrap();
