@@ -1,15 +1,16 @@
-pub mod member;
-pub mod boss;
-pub use member::Role;
-pub use boss::Boss;
 
+pub mod boss;
+pub mod member;
+use boss::Boss;
+use member::Member;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Mob {
     pub name: String,
-    pub boss: boss::Boss,
-    pub members: Vec<member::Member>,
+    pub boss: Boss,
     pub cities: Vec<(String, u8)>,
+    pub members: Vec<Member>,
     pub wealth: u32,
+    
 }
 
 impl Mob {
