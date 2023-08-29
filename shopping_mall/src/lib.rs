@@ -63,7 +63,7 @@ pub fn nbr_of_employees(mall: Mall) -> usize {
 }
 
 pub fn check_for_securities(mall: &mut Mall, additional_guards: Vec<Guard>) {
-    let total_guard_capacity: u64 = mall.floors.iter().map(|floor| floor.size_limit / 200).sum();
+    let total_guard_capacity: u64 = mall.floors.iter().map(|floor| floor.size_limit).sum::<u64>() / 200;
     let current_guards = mall.guards.len();
     let needed_guards = total_guard_capacity as i64 - current_guards as i64;
 
@@ -77,14 +77,25 @@ pub fn check_for_securities(mall: &mut Mall, additional_guards: Vec<Guard>) {
 
 
 pub fn cut_or_raise(mall: &mut Mall) {
+    const DECIMAL_PLACES: u32 = 6; // Number of decimal places to round to
+    
+    // Iterate through each floor in the mall
     for floor in &mut mall.floors {
+        // Iterate through each store on the floor
         for store in &mut floor.stores {
-            for employee in &mut store.employees {
-                if employee.working_hours.1 > 10 {
-                    employee.salary *= 1.1; // Raise by 10%
-                } else {
-                    employee.salary *= 0.9; // Decrease by 10%
-                }
+            // Iterate through each employee in the store
+            for employee in &mut store.employees.iter_mut() {
+                    // Check if the employee's working hours are more than 10
+                    if employee.working_hours.1 - employee.working_hours.0 > 10 {
+                        // Raise the salary by 10%
+                       employee.salary += employee.salary * 0.1;
+                    } else {
+                        // Decrease the salary by 10%
+                        employee.salary -= employee.salary * 0.1;
+                    }
+
+                    // Round the salary to the specified number of decimal places
+                    employee.salary = (employee.salary * 10_f64.powi(DECIMAL_PLACES as i32)).round() / 10_f64.powi(DECIMAL_PLACES as i32);
             }
         }
     }
