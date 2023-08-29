@@ -16,8 +16,8 @@ use middle_day::*;
 fn main() {
     println!("{:?}", middle_day(1022).unwrap());
 } */
-use chrono::{Datelike, NaiveDate, Weekday};
-
+pub use chrono::*;
+pub use chrono::Weekday as wd;
 
 
 pub fn middle_day(year: i32) -> Option<Weekday> {

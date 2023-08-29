@@ -61,7 +61,7 @@ impl TodoList {
 } */
 
 mod err;
-use err::{ ParseErr, ReadErr };
+pub use err::{ ParseErr, ReadErr };
 
 pub use json::{parse, stringify};
 pub use std::error::Error;
