@@ -32,13 +32,14 @@ pub struct Node {
 
 impl Node {
     pub fn new(ref_list: Vec<Rc<String>>) -> Node {
-        Node { ref_list: ref_list }
+        Node { ref_list }
     }
     pub fn add_element(&mut self, element: Rc<String>) {
         self.ref_list.push(element);
     }
+
     pub fn rm_all_ref(&mut self, element: Rc<String>) {
-        self.ref_list.retain(|x| x != &element);
+        self.ref_list.retain(|rc| !Rc::ptr_eq(rc, &element));
     }
 }
 
