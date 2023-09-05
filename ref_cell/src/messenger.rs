@@ -29,15 +29,15 @@ pub use std::rc::Rc;
         fn error(&self, msg: &str);
     }
 
-    pub struct Tracker<'a, T: Logger> {
-       pub  logger: &'a T,
+    pub struct Tracker<'a, L: Logger> {
+       pub  logger: &'a L,
        pub  value: Rc<usize>,
        pub  max: usize,
     }
 
-   impl <'a, T> Tracker<'a, T> 
-   where T: Logger {
-        pub fn new(logger: &'a T , max: usize) -> Tracker<'a, T> {
+   impl <'a, L> Tracker<'a, L> 
+   where L: Logger {
+        pub fn new(logger: &'a L , max: usize) -> Tracker<'a, L> {
             Tracker {
                 logger,
                 value: Rc::new(0),

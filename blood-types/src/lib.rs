@@ -94,12 +94,13 @@ pub enum RhFactor {
     Negative,
 }
 
-#[derive(PartialEq, Eq, PartialOrd)]
+#[derive(PartialEq, Eq, PartialOrd, Clone, Copy)]
 pub struct BloodType {
     pub antigen: Antigen,
     pub rh_factor: RhFactor,
 }
 
+use std::borrow::BorrowMut;
 use std::cmp::{Ord, Ordering};
 
 use std::str::FromStr;
@@ -144,17 +145,48 @@ impl FromStr for BloodType {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut antigen = Antigen::A;
         let mut rh_factor = RhFactor::Positive;
-
+        let mut count = 0;
         for c in s.chars() {
+            count += 1;
+            // can some how check if is character start with A and next is B then set antigen to AB
+            if c == 'A' && s.chars().nth(1).unwrap() == 'B' {
+                antigen = Antigen::AB;
+                // check if next is + or - then set rh_factor
+                if s.chars().nth(2).unwrap() == '+' {
+                    rh_factor = RhFactor::Positive;
+                } else {
+                    rh_factor = RhFactor::Negative;
+                }
+                break;
+            }else if (c == 'A' || c == 'B' || c == 'O') && count == 1 {
             match c {
-                'A' | 'B' | 'O' => antigen = Antigen::from_str(&c.to_string()).unwrap(),
-                '+' | '-' => rh_factor = RhFactor::from_str(&c.to_string()).unwrap(),
+                'A' => antigen = Antigen::A,
+                'B' => antigen = Antigen::B,
+                'O' => antigen = Antigen::O,
                 _ => return Err(()),
             }
+            } else if (c == '+' || c == '-') && count == 2 {
+                match c {
+                    '+' => rh_factor = RhFactor::Positive,
+                    '-' => rh_factor = RhFactor::Negative,
+                    _ => return Err(()),
+                }
+            } else {
+                return Err(());
+            }
+            }
+        // check if Antigen is correct
+        let check_list = vec![ Antigen::A,  Antigen::B,  Antigen::O,  Antigen::AB];
+        if !check_list.contains(&antigen) {
+            Err(())
+        } else {
+        
+            print!("Antigen is not correct {:?}", antigen);
+            Ok(BloodType { antigen, rh_factor })
         }
-
-        Ok(BloodType { antigen, rh_factor })
+    
     }
+    
 }
 
 use std::fmt::{self, Debug};
@@ -166,155 +198,77 @@ impl Debug for BloodType {
         } else {
             write!(f, "{:?}-", self.antigen)
         }
-
-        /*
-
-        write!(f, "{:?}{:?}", self.antigen, self.rh_factor) */
     }
 }
 
 impl BloodType {
 
-    // compatibility of blood types
-    //                                  !! Donors !!
-    //            O-      O+      B-      B+      A-      A+      AB-     AB+
-    // R      AB+:[true,   true,   true,   true,   true,   true,   true,   true]
-    // E      AB-:[true,   false,  true,   false,  true,   false,  true,   false]
-    // C      A+:[true,    true,   false,  false,  true,   true,   false,  false]
-    // I      A-:[true,    false,  false,  false,  true,   false,  false,  false]
-    // P      B+:[true,    true,   true,   true,   false,  false,  false,  false]
-    // I      B-:[true,    false,  true,   false,  false,  false,  false,  false]
-    // E      0+:[true,    true,   false,  false,  false,  false,  false,  false]
-    // N      0-:[true,    false,  false,  false,  false,  false,  false,  false]
-    // T
+    
 
     pub fn can_receive_from(&self, other: &Self) -> bool {
-        // Check if Rh factors are the same
-        if self.rh_factor != other.rh_factor {
-            return false;
-        }
+    let can_receive_map: Vec<Vec<&str>> = vec![
+        vec!["A+", "AB+"],
+        vec!["A+", "A-", "AB+", "AB-"],
+        vec!["B+", "AB+"],
+        vec!["B+", "B-", "AB+", "AB-"],
+        vec!["AB+"],
+        vec!["AB+", "AB-"],
+        vec!["A+", "B+", "AB+", "O+"],
+        vec!["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+    ];
+    let index_blood_type = vec![ "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+    println!("other: {:?}", self);
 
-        // Check antigen compatibility based on the Rh factor
-        match self.rh_factor {
-            RhFactor::Positive => {
-                match self.antigen {
-                    Antigen::A => match other.antigen {
-                        Antigen::A | Antigen::O => true,
-                        _ => false,
-                    },
-                    Antigen::B => match other.antigen {
-                        Antigen::B | Antigen::O => true,
-                        _ => false,
-                    },
-                    Antigen::AB => true, // AB+ can receive from any blood type
-                    Antigen::O => true,  // O+ can receive from any blood type
-                }
-            }
-            RhFactor::Negative => {
-                // Rh-negative can only receive from Rh-negative
-                self.rh_factor == other.rh_factor
-            }
-        }
+     let mut self_str = self.convert_to_string();
+     
+     let mut other_str =  other.convert_to_string();
+    // make other_str to & str
+    let new_self_str: &str = self_str.borrow_mut();
+    let new_other_str: &str = other_str.borrow_mut();
+
+     // get index in index_blood_type
+    let index_self = index_blood_type.iter().position(|&r| r == new_other_str).unwrap();
+   
+    if can_receive_map[index_self].contains(&new_self_str) {
+        println!("{} can receive from {}:{}", new_other_str, new_self_str,new_self_str);
+        return true;
+    } else {
+        println!("{} can't receive from {}:{}", new_other_str, new_self_str,new_self_str);
+        return false;    
+        
     }
 
+    }   
+
+
+
     pub fn donors(&self) -> Vec<Self> {
-        let mut donors = vec![];
-        
-            match self.rh_factor {
-                RhFactor::Positive => {
-                    match self.antigen {
-                        Antigen::A => {
-                            donors.push(BloodType {
-                                antigen: Antigen::A,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::A,
-                                rh_factor: RhFactor::Negative,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::O,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::O,
-                                rh_factor: RhFactor::Negative,
-                            });
-                        }
-                        Antigen::B => {
-                            donors.push(BloodType {
-                                antigen: Antigen::B,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::B,
-                                rh_factor: RhFactor::Negative,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::O,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::O,
-                                rh_factor: RhFactor::Negative,
-                            });
-                        }
-                        Antigen::AB => {
-                            donors.push(BloodType {
-                                antigen: Antigen::A,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::A,
-                                rh_factor: RhFactor::Negative,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::B,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::B,
-                                rh_factor: RhFactor::Negative,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::AB,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::AB,
-                                rh_factor: RhFactor::Negative,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::O,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::O,
-                                rh_factor: RhFactor::Negative,
-                            });
-                        }
-                        Antigen::O => {
-                            donors.push(BloodType {
-                                antigen: Antigen::O,
-                                rh_factor: RhFactor::Positive,
-                            });
-                            donors.push(BloodType {
-                                antigen: Antigen::O,
-                                rh_factor: RhFactor::Negative,
-                            });
-                        }
-                    }
-                }
-                RhFactor::Negative => {
-                    donors.push(BloodType {
-                        antigen: self.antigen,
-                        rh_factor: RhFactor::Negative,
-                    });
-                }
-            }
-        
-            donors
+      
+    let can_doners_map: Vec<Vec<&str>> = vec![
+        vec![ "A+", "A-", "O+", "O-"],
+        vec![ "A-", "O-"],
+        vec![ "B+", "B-", "O+", "O-"],
+        vec![ "B-", "O-"],
+        vec![ "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+        vec![ "A-", "B-", "AB-", "O-"],
+        vec![ "O+", "O-"],
+        vec![ "O-"],
+    ];
+    let index_blood_type = vec![ "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+
+     let mut self_str = self.convert_to_string();
+     let new_self_str: &str = self_str.borrow_mut();
+     let index_self = index_blood_type.iter().position(|&r| r == new_self_str).unwrap();
+     let can_doners_map = can_doners_map[index_self].clone();
+     let mut donors = Vec::new();
+        for blood_type in can_doners_map {
+            let blood_type: BloodType = blood_type.parse().unwrap();
+            donors.push(blood_type);
         }
+        donors
+
+    }
         
 
     pub fn recipients(&self) -> Vec<BloodType> {
@@ -335,4 +289,24 @@ impl BloodType {
 
         compatible_recipients
     }
+
+    // just convert blood type to string
+    fn convert_to_string(&self) -> String {
+        let antigen = match self.antigen {
+            Antigen::A => "A",
+            Antigen::B => "B",
+            Antigen::AB => "AB",
+            Antigen::O => "O",
+        };
+    
+        let rh_factor = match self.rh_factor {
+            RhFactor::Positive => "+",
+            RhFactor::Negative => "-",
+        };
+    
+        let blood_type = format!("{}{}", antigen, rh_factor);
+        
+        blood_type
+    }
+    
 }
