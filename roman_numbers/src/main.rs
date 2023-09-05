@@ -22,9 +22,9 @@ use roman_numbers::RomanNumber;
 
 #[allow(dead_code)]
 fn main() {
-    println!("{:?}", RomanNumber::from(32));
-    println!("{:?}", RomanNumber::from(9));
-    println!("{:?}", RomanNumber::from(45));
+    println!("{:?}", RomanNumber::from(1));
+    println!("{:?}", RomanNumber::from(2));
+    println!("{:?}", RomanNumber::from(3));
     println!("{:?}", RomanNumber::from(0));
 }
 #[test]
