@@ -175,6 +175,19 @@ impl Debug for BloodType {
 
 impl BloodType {
 
+    // compatibility of blood types
+    //                                  !! Donors !!
+    //            O-      O+      B-      B+      A-      A+      AB-     AB+
+    // R      AB+:[true,   true,   true,   true,   true,   true,   true,   true]
+    // E      AB-:[true,   false,  true,   false,  true,   false,  true,   false]
+    // C      A+:[true,    true,   false,  false,  true,   true,   false,  false]
+    // I      A-:[true,    false,  false,  false,  true,   false,  false,  false]
+    // P      B+:[true,    true,   true,   true,   false,  false,  false,  false]
+    // I      B-:[true,    false,  true,   false,  false,  false,  false,  false]
+    // E      0+:[true,    true,   false,  false,  false,  false,  false,  false]
+    // N      0-:[true,    false,  false,  false,  false,  false,  false,  false]
+    // T
+
     pub fn can_receive_from(&self, other: &Self) -> bool {
         // Check if Rh factors are the same
         if self.rh_factor != other.rh_factor {
