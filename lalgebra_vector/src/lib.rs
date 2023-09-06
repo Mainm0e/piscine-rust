@@ -21,47 +21,60 @@ impl Vector<T> {
 
 	pub fn dot(&self, other: &Self) -> Option<T> {
 	}
-} */
-pub struct Vector<T: Scalar>(pub Vec<T>);
+} */pub use lalgebra_scalar::Scalar;
 
-use std::ops::Add;
-use std::fmt::Debug;
-use std::cmp::PartialEq;
-use std::clone::Clone;
+pub use std::ops::Add;
+pub use std::fmt::Debug;
+pub use std::clone::Clone;
+pub use std::cmp::{Eq, PartialEq};
 
-pub trait Scalar: Add<Output = T> + Debug + Clone + PartialEq + Eq + Copy + Default {}
+pub struct Vector<T: Scalar + Debug + Clone + Eq + PartialEq>(pub Vec<T>);
 
-impl<T> Scalar for T where T: Add<Output = T> + Debug + Clone + PartialEq + Eq + Copy + Default {}
-
-impl<T: Scalar> Add<Vector<T>> for Vector<T> {
-    type Output = Vector<T>;
-
-    fn add(self, other: Vector<T>) -> Self::Output {
-        let mut result = Vec::new();
-        for (a, b) in self.0.into_iter().zip(other.0.into_iter()) {
-            result.push(a + b);
-        }
-        Vector(result)
-    }
-}
-
-impl<T: Scalar> Vector<T> {
-    pub fn new() -> Self {
-        Vector(Vec::new())
-    }
-
-    pub fn dot(&self, other: &Vector<T>) -> Option<T> {
+impl<T: Scalar + Debug + Clone + Eq + PartialEq + Add<Output = T>> Add for Vector<T> {
+    type Output = Option<Vector<T>>;
+    
+    fn add(self, other: Self) -> Self::Output {
         if self.0.len() != other.0.len() {
             return None;
         }
-        let mut result = T::default();
-        for (a, b) in self.0.iter().zip(other.0.iter()) {
-            result = result + *a * *b;
-        }
-        Some(result)
+        
+        let sum: Vec<T> = self.0.iter().zip(other.0.iter()).map(|(a, b)| a.clone() + b.clone()).collect();
+        Some(Vector(sum))
     }
 }
 
-fn main() {
-    // You can test your code here.
+impl<T: Scalar + Debug + Clone + Eq + PartialEq> Vector<T> {
+
+    pub fn new(vec: Vec<T>) -> Self {
+        Self(vec)
+    }
+
+    pub fn dot(&self, other: &Self) -> Option<T> {
+        if self.0.len() != other.0.len() {
+            return None;
+        }
+        
+        let dot_product = self.0.iter().zip(other.0.iter()).map(|(a, b)| a.clone() * b.clone()).fold(T::zero(), |acc, x| acc + x);
+        Some(dot_product)
+    }
+}
+
+impl<T: Scalar + Debug + Clone + Eq + PartialEq> Debug for Vector<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Vector({:?})", self.0)
+    }
+}
+
+impl<T: Scalar + Debug + Clone + Eq + PartialEq> Clone for Vector<T> {
+    fn clone(&self) -> Self {
+        Vector(self.0.clone())
+    }
+}
+
+impl<T: Scalar + Debug + Clone + Eq + PartialEq> Eq for Vector<T> {}
+
+impl<T: Scalar + Debug + Clone + Eq + PartialEq> PartialEq for Vector<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
 }
