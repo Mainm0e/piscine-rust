@@ -17,103 +17,19 @@ pub trait Scalar: _ {
 } */
 
 
-/* //!! my copilot 
-pub trait Scalar: Sized + Copy + std::ops::Add<Output = Self> + std::ops::Sub<Output = Self> + std::ops::Mul<Output = Self> + std::ops::Div<Output = Self> {
-    type Item: std::ops::Add<Self, Output = Self>;
-    
-    fn zero() -> Self::Item;
-    fn one() -> Self::Item;
-}
-
-impl Scalar for u32 {
-    type Item = u32;
-    
-    fn zero() -> Self::Item {
-        0
-    }
-    
-    fn one() -> Self::Item {
-        1
-    }
-}
-
-impl Scalar for u64 {
-    type Item = u64;
-    
-    fn zero() -> Self::Item {
-        0
-    }
-    
-    fn one() -> Self::Item {
-        1
-    }
-}
-
-impl Scalar for i32 {
-    type Item = i32;
-    
-    fn zero() -> Self::Item {
-        0
-    }
-    
-    fn one() -> Self::Item {
-        1
-    }
-}
-
-impl Scalar for i64 {
-    type Item = i64;
-    
-    fn zero() -> Self::Item {
-        0
-    }
-    
-    fn one() -> Self::Item {
-        1
-    }
-}
-
-impl Scalar for f32 {
-    type Item = f32;
-    
-    fn zero() -> Self::Item {
-        0.0
-    }
-    
-    fn one() -> Self::Item {
-        1.0
-    }
-}
-
-impl Scalar for f64 {
-    type Item = f64;
-    
-    fn zero() -> Self::Item {
-        0.0
-    }
-    
-    fn one() -> Self::Item {
-        1.0
-    }
-}
- */
 use std::ops::{Add, Sub, Mul, Div};
 
-/* // steve job
-The Scalar trait uses trait inheritance to include Add, Sub, Mul,
-and Div. Sized is also included to restrict types to those that 
-have a known size at compile time.
-*/
-pub trait Scalar: Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self> + Sized {
-    // Method to return the "zero" of the type
-    fn zero() -> Self;
-    
-    // Method to return the "one" of the type
-    fn one() -> Self;
+pub trait Scalar: Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self> + Clone + Sized {
+    type Item; // Associated type Item
+    fn zero() -> Self; // Method to return the "zero" of the type
+    fn one() -> Self;  // Method to return the "one" of the type
+    fn item(&self) -> Self::Item; // Method to return the associated item value
 }
 
 // Implementing Scalar for u32
 impl Scalar for u32 {
+    type Item = u32; // Associated type Item is u32
+
     fn zero() -> Self {
         0 // Zero for u32
     }
@@ -121,59 +37,209 @@ impl Scalar for u32 {
     fn one() -> Self {
         1 // One for u32
     }
+
+    fn item(&self) -> Self::Item {
+        *self // Return the value as the associated item
+    }
 }
 
-// Implementing Scalar for u64
+// Implementing Scalar for u64 (similarly for other types)
 impl Scalar for u64 {
+    type Item = u64;
+
     fn zero() -> Self {
-        0 // Zero for u64
+        0
     }
 
     fn one() -> Self {
-        1 // One for u64
+        1
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
     }
 }
 
 // Implementing Scalar for i32
 impl Scalar for i32 {
+    type Item = i32;
+
     fn zero() -> Self {
-        0 // Zero for i32
+        0
     }
 
     fn one() -> Self {
-        1 // One for i32
+        1
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
     }
 }
 
-// Implementing Scalar for i64
+// Implementing Scalar for i64 (similarly for other types)
 impl Scalar for i64 {
+    type Item = i64;
+
     fn zero() -> Self {
-        0 // Zero for i64
+        0
     }
 
     fn one() -> Self {
-        1 // One for i64
+        1
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
     }
 }
 
 // Implementing Scalar for f32
 impl Scalar for f32 {
+    type Item = f32;
+
     fn zero() -> Self {
-        0.0 // Zero for f32
+        0.0
     }
 
     fn one() -> Self {
-        1.0 // One for f32
+        1.0
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
     }
 }
 
-// Implementing Scalar for f64
+// Implementing Scalar for f64 (similarly for other types)
 impl Scalar for f64 {
+    type Item = f64;
+
     fn zero() -> Self {
-        0.0 // Zero for f64
+        0.0
     }
 
     fn one() -> Self {
-        1.0 // One for f64
+        1.0
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
     }
 }
+
+
+
+
+ /* 
+use std::ops::{Add, Sub, Mul, Div};
+
+pub trait Scalar: Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self> + Sized {
+    type Item; // Associated type Item
+    fn zero() -> Self; // Method to return the "zero" of the type
+    fn one() -> Self;  // Method to return the "one" of the type
+    fn item(&self) -> Self::Item; // Method to return the associated item value
+}
+
+// Implementing Scalar for u32
+impl Scalar for u32 {
+    type Item = u32; // Associated type Item is u32
+
+    fn zero() -> Self {
+        0 // Zero for u32
+    }
+
+    fn one() -> Self {
+        1 // One for u32
+    }
+
+    fn item(&self) -> Self::Item {
+        *self // Return the value as the associated item
+    }
+}
+
+// Implementing Scalar for u64 (similarly for other types)
+impl Scalar for u64 {
+    type Item = u64;
+
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
+    }
+}
+
+// Implementing Scalar for i32
+impl Scalar for i32 {
+    type Item = i32;
+
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
+    }
+}
+
+// Implementing Scalar for i64 (similarly for other types)
+impl Scalar for i64 {
+    type Item = i64;
+
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
+    }
+}
+
+// Implementing Scalar for f32
+impl Scalar for f32 {
+    type Item = f32;
+
+    fn zero() -> Self {
+        0.0
+    }
+
+    fn one() -> Self {
+        1.0
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
+    }
+}
+
+// Implementing Scalar for f64 (similarly for other types)
+impl Scalar for f64 {
+    type Item = f64;
+
+    fn zero() -> Self {
+        0.0
+    }
+
+    fn one() -> Self {
+        1.0
+    }
+
+    fn item(&self) -> Self::Item {
+        *self
+    }
+}
+ */
