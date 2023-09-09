@@ -1,14 +1,30 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+// todo: adding
+/* 
+Instructions
+Create the function add_curry, which returns a closure. The purpose is to 'curry' the add method to create more variations.
+
+Usage
+Here is a program to test your function.
+
+use adding::add_curry;
+
+fn main() {
+    let add10 = add_curry(-10);
+    let add20 = add_curry(2066);
+    let add30 = add_curry(300000);
+
+    println!("{}", add10(5));
+    println!("{}", add20(195));
+    println!("{}", add30(5696));
 }
+And its output:
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+$ cargo run
+-5
+2261
+305696
+$ */
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub fn add_curry(a: i32) -> impl Fn(i32) -> i32 {
+    move |b| a + b
 }
