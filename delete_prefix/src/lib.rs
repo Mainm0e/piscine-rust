@@ -1,14 +1,31 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+/* delete_prefix
+Instructions
+Define the function delete_prefix which returns the string slice s with the prefix removed. It should be wrapped in Some. If prefix is not a prefix of s, then delete_prefix returns None.
+
+Expected Function
+pub fn delete_prefix(prefix: &str, s: &str) -> Option<&str> {
 }
+Usage
+Here is a program to test your function.
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+use delete_prefix::delete_prefix;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+fn main() {
+	println!("{:?}", delete_prefix("ab", "abcdefghijklmnop"));
+	println!("{:?}", delete_prefix("x", "abcdefghijklmnop"));
+}
+And its output:
+
+$ cargo run
+Some("cdefghijklmnop")
+None
+$ */
+
+pub fn delete_prefix<'a>(prefix: &'a str, s: &'a str) -> Option<&'a str> {
+    if s.starts_with(prefix) {
+        Some(&s[prefix.len()..])
+    } else {
+        None
     }
 }
+
