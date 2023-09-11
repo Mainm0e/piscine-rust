@@ -49,13 +49,10 @@ None
 $ */
 
 // Path: src/lib.rs
-
+use matrix::Matrix;
 use lalgebra_scalar::Scalar;
 //use crate::{Matrix, Scalar};
 use std::ops::{ Add, Sub };
-
-#[derive(Debug, PartialEq)]
-pub struct Matrix<T>(pub Vec<Vec<T>>);
 
 impl<T> Add for Matrix<T>
 where
@@ -103,3 +100,32 @@ where
     }
 }
 
+
+// Create a newtype/wrapper for Matrix
+pub struct MatrixWrapper<T>(pub matrix::Matrix<T>);
+
+impl<T> Add for MatrixWrapper<T>
+where
+    T: std::ops::Add<Output = T>,
+{
+    type Output = matrix::Matrix<T>;
+
+    fn add(self, rhs: MatrixWrapper<T>) -> matrix::Matrix<T> {
+        // Implement addition here by delegating to the inner Matrix
+        let inner_result = self.0 + rhs.0;
+        inner_result
+    }
+}
+
+impl<T> Sub for MatrixWrapper<T>
+where
+    T: std::ops::Sub<Output = T>,
+{
+    type Output = matrix::Matrix<T>;
+
+    fn sub(self, rhs: MatrixWrapper<T>) -> matrix::Matrix<T> {
+        // Implement subtraction here by delegating to the inner Matrix
+        let inner_result = self.0 - rhs.0;
+        inner_result
+    }
+}
